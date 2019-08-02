@@ -36,6 +36,7 @@ node("${BUILD_NODE}"){
             -PossimMavenProxy=${OSSIM_MAVEN_PROXY}
         """
         archiveArtifacts "plugins/*/build/libs/*.jar"
+        archiveArtifacts "apps/*/build/libs/*.jar"
     }
 
     stage ("Publish Nexus")
@@ -50,6 +51,40 @@ node("${BUILD_NODE}"){
                 -PossimMavenProxy=${OSSIM_MAVEN_PROXY}
             """
         }
+    }
+
+    stage ("Publish Docker App")
+    {
+        withCredentials([[$class: 'UsernamePasswordMultiBinding',
+                        credentialsId: 'dockerCredentials',
+                        usernameVariable: 'DOCKER_REGISTRY_USERNAME',
+                        passwordVariable: 'DOCKER_REGISTRY_PASSWORD']])
+        {
+            // Run all tasks on the app. This includes pushing to OpenShift and S3.
+            sh """
+            gradle pushImage \
+                -PossimMavenProxy=${OSSIM_MAVEN_PROXY}
+            """
+        }
+    }
+
+    try {
+        stage ("OpenShift Tag Image")
+        {
+            withCredentials([[$class: 'UsernamePasswordMultiBinding',
+                            credentialsId: 'openshiftCredentials',
+                            usernameVariable: 'OPENSHIFT_USERNAME',
+                            passwordVariable: 'OPENSHIFT_PASSWORD']])
+            {
+                // Run all tasks on the app. This includes pushing to OpenShift and S3.
+                sh """
+                    gradle openshiftTagImage \
+                        -PossimMavenProxy=${OSSIM_MAVEN_PROXY}
+                """
+            }
+        }
+    } catch (e) {
+        echo e.toString()
     }
 
     stage("Clean Workspace")

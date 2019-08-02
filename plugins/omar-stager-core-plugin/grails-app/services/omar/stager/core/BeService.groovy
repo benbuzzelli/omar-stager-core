@@ -1,12 +1,12 @@
 package omar.stager.core
 
 
-import com.vividsolutions.jts.io.WKTReader
-import grails.transaction.Transactional
+import org.locationtech.jts.io.WKTReader
+//import grails.transaction.Transactional
 import groovy.json.JsonSlurper
 
 
-@Transactional
+//@Transactional
 class BeService {
 
 	def grailsApplication

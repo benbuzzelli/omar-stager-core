@@ -5,10 +5,10 @@ import omar.core.Repository
 import omar.core.ProcessStatus
 import omar.core.HttpStatus
 import joms.oms.ImageStager
-import grails.transaction.Transactional
+//import grails.transaction.Transactional
 
 @Slf4j
-@Transactional
+//@Transactional
 class StagerService
 {
 	static transactional = true
